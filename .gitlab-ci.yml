@@ -1,0 +1,32 @@
+stages:
+ - stylecheck
+ - tests
+ - docker
+
+validate:
+ stage: stylecheck
+ script:
+   - /opt/cms-datapop/pyenv/bin/pylint --rcfile=conf/.rcfile src/main.py
+ image: gitlab-registry.cern.ch/awg/cms-dataset-popularity:test
+ only:
+   - deploy
+
+tests:
+  stage: tests
+  script:
+    - /opt/cms-datapop/pyenv/bin/nosetests -v -s tests/main.py
+  image: gitlab-registry.cern.ch/awg/cms-dataset-popularity:test
+  only:
+    - deploy
+
+build-image-prod:
+  stage: docker
+  only:
+    - deploy
+  tags:
+    - docker-image-build
+  script:
+    - echo "Pushing image version $BUILD_VERSION"
+  variables:
+    DOCKER_FILE: docker/Dockerfile-ci
+    TO: ${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_VERSION}

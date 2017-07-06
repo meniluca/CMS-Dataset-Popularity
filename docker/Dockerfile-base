@@ -1,0 +1,24 @@
+FROM gitlab-registry.cern.ch/awg/spark:2.1.0-j8-s2.11
+
+RUN yum install which -y && \
+  yum install python-pip -y && \
+  pip install --upgrade pip && \
+  pip install virtualenv && \
+  pip install virtualenvwrapper && \
+  yum clean all
+
+WORKDIR /opt/cms-datapop
+
+ENV WORKON_HOME /opt/cms-datapop
+
+RUN source /usr/bin/virtualenvwrapper.sh && \
+  mkvirtualenv pyenv && \
+  pip install requests && \
+  pip install pylint && \
+  pip install findspark && \
+  pip install unittest2 && \
+  pip install nose
+
+RUN mkdir /opt/cms-datapop/job
+
+WORKDIR /opt/cms-datapop/job

@@ -1,0 +1,32 @@
+FROM gitlab-registry.cern.ch/awg/spark:2.1.0-j8-s2.11
+
+RUN rpm --rebuilddb && \
+  yum clean all && \
+  yum install blas blas-devel lapack lapack-devel -y
+
+RUN mkdir -p /opt/cms-datapop/VIRTUALPY
+
+COPY ./src/* /opt/cms-datapop/
+
+WORKDIR /opt/cms-datapop/VIRTUALPY
+
+RUN pip install virtualenvwrapper && \
+  yum clean all
+
+RUN source /usr/bin/virtualenvwrapper.sh && \
+  mkvirtualenv pyenv && \
+  pip install requests
+
+COPY ./conf/runVirtualPy.sh pyenv/bin/runVirtualPy.sh
+RUN chmod +x pyenv/bin/runVirtualPy.sh
+
+RUN zip -r pyenv.zip pyenv
+
+WORKDIR /opt/cms-datapop/
+
+ENV PYSPARK_PYTHON ./VIRTUALPY/pyenv/bin/runVirtualPy.sh
+
+CMD ["pyspark", "--master", "yarn-client", \
+  "--conf" ,"spark.yarn.appMasterEnv.PYSPARK_PYTHON=./VIRTUALENV/virtualenv-libs/bin/runPython", \
+  "--archives", "VIRTUALENV/virtualenv-libs.zip#VIRTUALENV" \
+  "main.py"]
