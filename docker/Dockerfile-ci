@@ -1,32 +1,24 @@
 FROM gitlab-registry.cern.ch/awg/spark:2.1.0-j8-s2.11
 
-RUN rpm --rebuilddb && \
-  yum clean all && \
-  yum install blas blas-devel lapack lapack-devel -y
-
-RUN mkdir -p /opt/cms-datapop/VIRTUALPY
-
-COPY ./src/* /opt/cms-datapop/
-
-WORKDIR /opt/cms-datapop/VIRTUALPY
-
-RUN pip install virtualenvwrapper && \
+RUN yum install which -y && \
+  yum install python-pip -y && \
+  pip install --upgrade pip && \
+  pip install virtualenv && \
+  pip install virtualenvwrapper && \
   yum clean all
+
+WORKDIR /opt/cms-datapop
+
+ENV WORKON_HOME /opt/cms-datapop
 
 RUN source /usr/bin/virtualenvwrapper.sh && \
   mkvirtualenv pyenv && \
-  pip install requests
+  pip install requests && \
+  pip install pylint && \
+  pip install findspark && \
+  pip install unittest2 && \
+  pip install nose
 
-COPY ./conf/runVirtualPy.sh pyenv/bin/runVirtualPy.sh
-RUN chmod +x pyenv/bin/runVirtualPy.sh
+RUN mkdir /opt/cms-datapop/job
 
-RUN zip -r pyenv.zip pyenv
-
-WORKDIR /opt/cms-datapop/
-
-ENV PYSPARK_PYTHON ./VIRTUALPY/pyenv/bin/runVirtualPy.sh
-
-CMD ["pyspark", "--master", "yarn-client", \
-  "--conf" ,"spark.yarn.appMasterEnv.PYSPARK_PYTHON=./VIRTUALENV/virtualenv-libs/bin/runPython", \
-  "--archives", "VIRTUALENV/virtualenv-libs.zip#VIRTUALENV" \
-  "main.py"]
+WORKDIR /opt/cms-datapop/job

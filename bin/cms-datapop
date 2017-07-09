@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -u nounset
+
+BINPATH=`dirname $0`
+cd $BINPATH/
+
+source ../conf/*.properties
+
+MASTER=${SPARK_MASTER:-yarn-client}
+PHEDEX_INPUT=${PHEDEX_INPUT_PATH:-hdfs://analytix/project/awg/cms/cmssw-popularity/avro-snappy/}
+
+FROM=$(date +'%Y-%m-%d' -d "1 week ago")
+FROM=${FROM_DATE:-$FROM}
+TO=$(date +'%Y-%m-%d' -d "1 day ago")
+TO=${TO_DATE:-$TO}
+
+spark-submit --master $MASTER ../src/main.py --from_date $FROM --to_date $TO
