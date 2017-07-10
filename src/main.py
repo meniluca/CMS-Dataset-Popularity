@@ -6,6 +6,9 @@ Author: Luca Menichetti (luca.menichetti@cern.ch)
 """
 
 import argparse
+from pyspark.sql import SparkSession
+from datapop.phedex import Catalog, Blocks
+from spark import util
 
 if __name__ == '__main__':
 
@@ -27,5 +30,35 @@ if __name__ == '__main__':
         dest="dataset_ID",\
         action="store", \
         help="The ID of the dataset (data source: Phedex)")
+    parser.add_argument("--blocks-path", \
+        required=True, \
+        dest="blocks_path",\
+        action="store", \
+        help="Phedex, block replica snapshot HDFS path")
+    parser.add_argument("--catalog-path", \
+        required=True, \
+        dest="catalog_path",\
+        action="store", \
+        help="Phedex, catalog HDFS path")
+
 
     args = parser.parse_args()
+
+    spark = SparkSession\
+        .builder\
+        .appName("CMS-datapop")\
+        .getOrCreate()
+
+    blocks = Blocks(prefix=args.blocks_path)
+
+    blocks_dataframe = spark.read.format("csv") \
+        .schema(blocks.get_schema()) \
+        .load(blocks.get_folder_list(util.get_days_list(args.from_date, args.to_date)))
+
+    catalog = Catalog(prefix=args.catalog_path)
+
+    catalog_dataframe = spark.read.format("csv") \
+        .schema(catalog.get_schema()) \
+        .load(catalog.get_folder_list(util.get_days_list(args.from_date, args.to_date)))
+
+    

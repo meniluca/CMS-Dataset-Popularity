@@ -8,11 +8,14 @@ cd $BINPATH/
 source ../conf/*.properties
 
 MASTER=${SPARK_MASTER:-yarn-client}
-PHEDEX_INPUT=${PHEDEX_INPUT_PATH:-hdfs://analytix/project/awg/cms/cmssw-popularity/avro-snappy/}
+PHEDEX_BLOCKS_INPUT_PATH=${PHEDEX_BLOCKS_INPUT_PATH:-/project/awg/cms/phedex/block-replicas-snapshots/csv/}
+PHEDEX_CATALOG_INPUT_PATH=${PHEDEX_CATALOG_INPUT_PATH:-/project/awg/cms/phedex/catalog/csv/diff/}
 
 FROM=$(date +'%Y-%m-%d' -d "1 week ago")
 FROM=${FROM_DATE:-$FROM}
 TO=$(date +'%Y-%m-%d' -d "1 day ago")
 TO=${TO_DATE:-$TO}
 
-spark-submit --master $MASTER ../src/main.py --from_date $FROM --to_date $TO
+spark-submit --master $MASTER ../src/main.py --from_date $FROM --to_date $TO \
+  --blocks-path $PHEDEX_BLOCKS_INPUT_PATH \
+  --catalog-path $PHEDEX_CATALOG_INPUT_PATH

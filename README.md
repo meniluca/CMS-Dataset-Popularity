@@ -22,7 +22,7 @@ You can use the Docker container to simulate CI locally before pushing:
 * To run pylint:
 
 ```bash
-docker run -v $PWD:/opt/cms-datapop/job gitlab-registry.cern.ch/awg/cms-dataset-popularity:test ../pyenv/bin/pylint --rcfile=conf/.rcfile src/main.py
+docker run -v $PWD:/opt/cms-datapop/job gitlab-registry.cern.ch/awg/cms-dataset-popularity:test ../pyenv/bin/pylint --rcfile=conf/.rcfile src/main.py src/spark/util.py src/datapop/phedex.py
 ```
 
 * To run tests with nosetests:
@@ -32,3 +32,6 @@ docker run -v $PWD:/opt/cms-datapop/job gitlab-registry.cern.ch/awg/cms-dataset-
 ```
 
 ## How to submit the job
+
+* From node with docker (add link)
+* From lxplus

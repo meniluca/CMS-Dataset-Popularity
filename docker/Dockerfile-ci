@@ -13,11 +13,14 @@ ENV WORKON_HOME /opt/cms-datapop
 
 RUN source /usr/bin/virtualenvwrapper.sh && \
   mkvirtualenv pyenv && \
-  pip install requests && \
   pip install pylint && \
   pip install findspark && \
   pip install unittest2 && \
-  pip install nose
+  pip install nose && \
+  pip install py4j
+
+ENV SPARK_HOME "/opt/spark"
+ENV PYTHONPATH $SPARK_HOME/python/:$SPARK_HOME/python/lib/py4j-0.10.4-src.zip:$PYTHONPATH
 
 RUN mkdir /opt/cms-datapop/job
 
