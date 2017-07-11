@@ -27,7 +27,7 @@ if __name__ == '__main__':
         help="Process data until this date (format YYYY-MM-DD)")
     parser.add_argument("--dataset-id", \
         required=False, \
-        dest="dataset_ID",\
+        dest="dataset_id",\
         action="store", \
         help="The ID of the dataset (data source: Phedex)")
     parser.add_argument("--blocks-path", \
@@ -49,16 +49,23 @@ if __name__ == '__main__':
         .appName("CMS-datapop")\
         .getOrCreate()
 
-    blocks = Blocks(prefix=args.blocks_path)
+    blocks = Blocks(prefix=args.blocks_path, days_list=util.get_days_list(args.from_date, args.to_date))
 
     blocks_dataframe = spark.read.format("csv") \
         .schema(blocks.get_schema()) \
-        .load(blocks.get_folder_list(util.get_days_list(args.from_date, args.to_date)))
+        .load(blocks.folders_list)
 
-    catalog = Catalog(prefix=args.catalog_path)
+    catalog = Catalog(prefix=args.catalog_path, days_list=util.get_days_list(args.from_date, args.to_date))
 
     catalog_dataframe = spark.read.format("csv") \
         .schema(catalog.get_schema()) \
-        .load(catalog.get_folder_list(util.get_days_list(args.from_date, args.to_date)))
+        .load(catalog.folders_list)
 
-    
+    blocks.set_dataframe(blocks_dataframe)
+    catalog.set_dataframe(catalog_dataframe)
+
+    if not args.dataset_id:
+        blocks.print_stats()
+        catalog.print_stats()
+    else:
+        pass
