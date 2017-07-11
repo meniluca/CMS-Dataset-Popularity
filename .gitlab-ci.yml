@@ -29,4 +29,4 @@ build-image-prod:
     - echo "Pushing image version $BUILD_VERSION"
   variables:
     DOCKER_FILE: docker/Dockerfile-base
-    TO: ${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_VERSION}
+    TO: ${CI_REGISTRY_IMAGE}:latest
