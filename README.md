@@ -34,4 +34,14 @@ docker run -v $PWD:/opt/cms-datapop/job gitlab-registry.cern.ch/awg/cms-dataset-
 ## How to submit the job
 
 * From node with docker (add link)
+
+```
+kinit $USER
+KRB5CCNAME=$(klist|grep Ticket|awk -F": " '{print $2}')
+docker run -it --net=host -e KRB5CCNAME=$KRB5CCNAME -e AFS_USER=$USER \
+    -v /tmp:/tmp -v /afs:/afs \
+    -v /etc/hadoop/conf/:/etc/hadoop/conf -v /etc/spark/conf:/opt/spark/conf \
+    gitlab-registry.cern.ch/awg/cms-dataset-popularity:latest
+```
+
 * From lxplus

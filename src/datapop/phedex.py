@@ -8,15 +8,16 @@ from pyspark import StorageLevel
 from pyspark.sql.types import StructType
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.functions import udf
+from pyspark.sql.functions import col # pylint: disable-msg=E0611
+from pyspark.sql.functions import date_format
 from pyspark.sql.types import BooleanType
-from pyspark.sql.functions import Column as col
 
 def get_day_folder_path(prefix, suffix_format, year, month, day):
     """Constructs and returns the day path string"""
     assert regex_match(r'^(\d\d)?\d\d$', year), "%s is not a valid year" % year
     assert regex_match(r'^(\d)?\d$', month), "%s is not a valid month" % month
     assert regex_match(r'^(\d)?\d$', day), "%s is not a valid day" % day
-    day = date(year, month, day)
+    day = date(int(year), int(month), int(day))
     return suffix_format % (prefix, day.strftime("%Y-%m-%d"))
 
 #
@@ -88,7 +89,7 @@ class Blocks(object):
             .withColumn("replica_timestamp_update", parse_timestamp(dataframe.replica_time_update))
         self.dataframe.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
         self.total_rows = dataframe.count()
-        print "Total rows: %d" % self.total_rows
+        print "Total Block rows: %d" % self.total_rows
 
     def print_stats(self, dataframe=None):
         """Calculate top statistics using the Spark DataFrame passed as argument"""
@@ -156,7 +157,7 @@ class Catalog(object):
             .withColumn("file_timestamp_create", parse_timestamp(dataframe.file_time_create))
         self.dataframe.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
         self.total_rows = dataframe.count()
-        print "Total rows: %d" % self.total_rows
+        print "Total Catalog rows: %d" % self.total_rows
 
     def print_stats(self, dataframe=None):
         """Calculate top statistics using the Spark DataFrame passed as argument"""
@@ -180,19 +181,19 @@ class Catalog(object):
             .groupBy("dataset_id").agg({"dataset_timestamp_create":"min"}) \
             .orderBy(col("min(dataset_timestamp_create)")).show(10)
 
-    def creation_histogram(self, arg):
+    def creation_histogram(self):
         """Returns a histogram of days where each bin is the number of datasets created in that day
         and used during the time window specified with the --from and --to arguments"""
-        return self.dataframe.select("dataset_id","dataset_timestamp_create")\
-            .groupBy("dataset_id").agg({"dataset_timestamp_create":"min"})\
-            .withColumn("creation_date", date_format(col("min(dataset_timestamp_create)"), "yyyy-MM-dd"))\
+        return self.dataframe.select("dataset_id", "dataset_timestamp_create") \
+            .groupBy("dataset_id").agg({"dataset_timestamp_create":"min"}) \
+            .withColumn("creation_date", date_format(col("min(dataset_timestamp_create)"), "yyyy-MM-dd")) \
             .groupBy("creation_date").count().orderBy(col("creation_date"))
 
-    def creation_histogram_hits(self, arg):
+    def creation_histogram_hits(self):
         """Like the previous method, create an histogram of days, but this time each bin is the count
         of total rows with datasets created in that day"""
-        return self.dataframe.select("dataset_id","dataset_timestamp_create")\
-            .groupBy("dataset_id").agg({"dataset_timestamp_create":"min", "*":"count"})\
-            .withColumn("creation_date", date_format(col("min(dataset_timestamp_create)"),"yyyy-MM-dd"))\
-            .withColumnRenamed("count(1)","hits")\
+        return self.dataframe.select("dataset_id", "dataset_timestamp_create") \
+            .groupBy("dataset_id").agg({"dataset_timestamp_create":"min", "*":"count"}) \
+            .withColumn("creation_date", date_format(col("min(dataset_timestamp_create)"), "yyyy-MM-dd")) \
+            .withColumnRenamed("count(1)", "hits")\
             .groupBy("creation_date").sum("hits").orderBy(col("creation_date"))

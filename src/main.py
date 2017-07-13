@@ -49,6 +49,8 @@ if __name__ == '__main__':
         .appName("CMS-datapop")\
         .getOrCreate()
 
+    spark.sparkContext.setLogLevel("WARN")
+
     blocks = Blocks(prefix=args.blocks_path, days_list=util.get_days_list(args.from_date, args.to_date))
 
     blocks_dataframe = spark.read.format("csv") \
