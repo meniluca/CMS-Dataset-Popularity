@@ -10,6 +10,7 @@ source ../conf/*.properties
 MASTER=${SPARK_MASTER:-yarn-client}
 PHEDEX_BLOCKS_INPUT_PATH=${PHEDEX_BLOCKS_INPUT_PATH:-/project/awg/cms/phedex/block-replicas-snapshots/csv/}
 PHEDEX_CATALOG_INPUT_PATH=${PHEDEX_CATALOG_INPUT_PATH:-/project/awg/cms/phedex/catalog/csv/diff/}
+JOBS_POPULARITY_INPUT_PATH=${JOBS_POPULARITY_INPUT_PATH:-/project/awg/cms/jm-data-popularity/avro-snappy/}
 
 FROM=$(date +'%Y-%m-%d' -d "2 days ago")
 FROM=${FROM_DATE:-$FROM}
@@ -20,4 +21,5 @@ SPARK_PARAMS=${SPARK_PARAMS:-}
 
 spark-submit $SPARK_PARAMS --master $MASTER ../src/main.py --from $FROM --to $TO \
   --blocks-path $PHEDEX_BLOCKS_INPUT_PATH \
-  --catalog-path $PHEDEX_CATALOG_INPUT_PATH
+  --catalog-path $PHEDEX_CATALOG_INPUT_PATH \
+  --jobs-pop $JOBS_POPULARITY_INPUT_PATH

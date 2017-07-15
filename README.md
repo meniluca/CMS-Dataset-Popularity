@@ -4,7 +4,7 @@ Missing repository description.
 
 ## Continuous Integration
 
-Gitlab CI runs Docker containers for checkstyle control and tests, then it creates a new Docker image containing the Pyspark jobs.  The procedure is specified in the ``.gitlab-ci.yml`` file and it is automatically triggered by new commits in the ``deploy`` branch.
+Gitlab CI runs Docker containers for checkstyle control and tests, then it creates a new Docker image with the Pyspark jobs.  The procedure is specified in the ``.gitlab-ci.yml`` file and it is automatically triggered by new commits in the ``deploy`` branch.
 
 Commands used to create Docker image for pylint and tests are:
 
@@ -22,7 +22,7 @@ You can use the Docker container to simulate CI locally before pushing:
 * To run pylint:
 
 ```bash
-docker run -v $PWD:/opt/cms-datapop/job gitlab-registry.cern.ch/awg/cms-dataset-popularity:test ../pyenv/bin/pylint --rcfile=conf/.rcfile src/main.py src/spark/util.py src/datapop/phedex.py
+docker run -v $PWD:/opt/cms-datapop/job gitlab-registry.cern.ch/awg/cms-dataset-popularity:test ../pyenv/bin/pylint --rcfile=conf/.rcfile src/main.py src/spark/util.py src/datapop/phedex.py src/datapop/jobs.py
 ```
 
 * To run tests with nosetests:

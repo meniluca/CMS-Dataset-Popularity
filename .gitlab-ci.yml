@@ -6,7 +6,7 @@ stages:
 validate:
  stage: stylecheck
  script:
-   - /opt/cms-datapop/pyenv/bin/pylint --rcfile=conf/.rcfile src/main.py src/spark/util.py src/datapop/phedex.py
+   - /opt/cms-datapop/pyenv/bin/pylint --rcfile=conf/.rcfile src/main.py src/spark/util.py src/datapop/phedex.py src/datapop/jobs.py
  image: gitlab-registry.cern.ch/awg/cms-dataset-popularity:test
  only:
    - deploy

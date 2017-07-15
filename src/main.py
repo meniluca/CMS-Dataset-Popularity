@@ -40,6 +40,11 @@ if __name__ == '__main__':
         dest="catalog_path",\
         action="store", \
         help="Phedex, catalog HDFS path")
+    parser.add_argument("--jobs-pop", \
+        required=True, \
+        dest="jobs_pop_path",\
+        action="store", \
+        help="Jobs monitoring data popularity HDFS path")
 
 
     args = parser.parse_args()
